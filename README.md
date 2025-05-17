@@ -43,7 +43,29 @@
     
   }
   ```
-
+---
+* ```kvsecrets.tf``` :- has block to set secrets in the key vault. (Note:- replace ```<YOU_TAVILY_API_KEY>``` and ```<YOU_GROQ_API_KEY>``` with your keys respectively. (How to get these keys are mentioned [here](./app/README.md)). Secrets will only be set after keyvault is created which will be done in ```main.tf```
+   ```terraform
+   # set secrets in the key vault
+   resource "azurerm_key_vault_secret" "research-agent-kv-secrets-tavily-api-key" {
+       name = "tavily-api-key"
+       value = "<YOUR_TAVILY_API_KEY>"
+       key_vault_id = azurerm_key_vault.research-agent-key-vault.id
+       depends_on = [
+           azurerm_key_vault_access_policy.key_vault_user_role_assignment
+       ]
+   }
+   
+   resource "azurerm_key_vault_secret" "research-agent-kv-secrets-groq-api-key" {
+       name = "groq-api-key"
+       value = "<YOUR_GROQ_API_KEY>"
+       key_vault_id = azurerm_key_vault.research-agent-key-vault.id
+       depends_on = [
+           azurerm_key_vault_access_policy.key_vault_user_role_assignment
+       ]
+   }
+   ```
+---
 * ```main.tf``` :- main terraform config file for creating all the resorces
   
   - create resource group and setup an User Managed Assigned Identity (UMAI)
@@ -145,4 +167,107 @@
          name = docker_image.research-agent-image.name
          depends_on = [docker_image.research-agent-image]
      }
-```
+     ```
+  - create container environment for runtime and log analytics workspace for logging since container app needs both of these for running
+    ```terraform
+    # create a container app environment
+    resource "azurerm_container_app_environment" "research-agent-container-app-environment" {
+        name = "research-agent-container-app-environment"
+        resource_group_name = azurerm_resource_group.research-agent-resource-group.name
+        location = azurerm_resource_group.research-agent-resource-group.location
+        depends_on = [
+            azurerm_resource_group.research-agent-resource-group
+        ]
+    }
+    
+    # create a log analytics workspace
+    resource "azurerm_log_analytics_workspace" "research-agent-log-analytics-workspace" {
+        name = "research-agent-log-analytics-workspace"
+        resource_group_name = azurerm_resource_group.research-agent-resource-group.name
+        location = azurerm_resource_group.research-agent-resource-group.location
+        depends_on = [
+            azurerm_resource_group.research-agent-resource-group
+        ]
+    }
+    ```
+  - create container app and assign it the UMAI for accesing image from container registry and setting container secrets from key vault. Also enable external access as this is a web app
+    ```terraform
+    # create a container app
+    resource "azurerm_container_app" "research-agent-container-app" {
+        name = "research-agent-container-app"
+        resource_group_name = azurerm_resource_group.research-agent-resource-group.name
+        container_app_environment_id = azurerm_container_app_environment.research-agent-container-app-environment.id
+        revision_mode = "Single"
+        
+        # add User Managed Identity to the container app
+        identity {
+            type = "UserAssigned"
+            identity_ids = [azurerm_user_assigned_identity.research-agent-user-assigned-identity.id]
+        }
+    
+        # use the user assigned identity to pull the image from the container registry
+        registry {
+            server = azurerm_container_registry.research-agent-container-registry.login_server
+            identity = azurerm_user_assigned_identity.research-agent-user-assigned-identity.id
+        }
+        
+        # add secrets to the container app
+        secret {
+            name = "tavily-api-key"
+            identity = azurerm_user_assigned_identity.research-agent-user-assigned-identity.id
+            key_vault_secret_id = azurerm_key_vault_secret.research-agent-kv-secrets-tavily-api-key.id
+        }
+        secret {
+            name = "groq-api-key"
+            identity = azurerm_user_assigned_identity.research-agent-user-assigned-identity.id
+            key_vault_secret_id = azurerm_key_vault_secret.research-agent-kv-secrets-groq-api-key.id
+        }
+    
+        # add template to the container app
+        template {
+            min_replicas = 1
+            max_replicas = 1
+            
+            container {
+                cpu = 0.5
+                memory = "1.0Gi"
+                name = "research-agent-container"
+                # image = docker_registry_image.research-agent-image-push.image_id
+                image = docker_image.research-agent-image.name
+    
+                # add environment variables to the container app
+                env {
+                    name = "TAVILY_API_KEY"
+                    secret_name = "tavily-api-key"
+                }
+                env {
+                    name = "GROQ_API_KEY"
+                    secret_name = "groq-api-key"
+                }
+            }
+        }
+    
+        # ingress settings
+        ingress {
+            target_port = 8051
+            external_enabled = true
+            traffic_weight {
+                latest_revision = true
+                percentage = 100
+            }
+        }
+        # depends on container registry, container registry role assignment, key vault, key vault access policy, container app environment, log analytics workspace, image push, key vault secrets
+        depends_on = [
+            azurerm_role_assignment.research-agent-container-registry-role-assignment,
+            azurerm_key_vault_access_policy.key_vault_user_role_assignment,
+            azurerm_container_app_environment.research-agent-container-app-environment, 
+            azurerm_log_analytics_workspace.research-agent-log-analytics-workspace, 
+            docker_registry_image.research-agent-image-push, 
+            azurerm_key_vault_secret.research-agent-kv-secrets-tavily-api-key,
+            azurerm_key_vault_secret.research-agent-kv-secrets-groq-api-key
+        ]
+    }
+    ```
+    
+
+
