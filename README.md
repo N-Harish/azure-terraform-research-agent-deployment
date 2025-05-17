@@ -13,6 +13,6 @@
 ## Terraform configs for deployment on Azure Container App 
 
 ### Architecture Diagram:
-![research-agent-arch (1)](https://github.com/user-attachments/assets/76cd44f4-cd30-4081-b44b-a811b3138805)
+![research-agent-arch (1)](https://github.com/user-attachments/assets/620b4ced-50d4-4acf-b731-0a3525a4c212)
 
 ### Terraform Code Explained
