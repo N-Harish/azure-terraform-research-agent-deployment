@@ -15,6 +15,26 @@
 ## Architecture Diagram:
 ![research-agent-arch (1)](https://github.com/user-attachments/assets/620b4ced-50d4-4acf-b731-0a3525a4c212)
 
+## To setup this infrastructure
+* cd into ```terraform_config/container_app```
+* run
+  ```
+  terraform init
+  ```
+  command
+* next, run
+  ```
+  terraform plan -out main.plan
+  ```
+* Finally, run
+  ```
+  terraform apply main.plan
+  ```
+* To destroy the complete infra, run
+  ```
+  terraform destroy
+  ```
+
 ## Terraform Code Explained
  
 * ```provider.tf``` :- setting up the required providers (```azurerm (stands for Azure Resource Manager) and docker provider```)
