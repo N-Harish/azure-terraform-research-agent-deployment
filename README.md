@@ -2,7 +2,7 @@
 
 * Research Agent is an Agentic App conssiting of two agents. One agent acts as a searcher (Uses tool to gather top 15 articles for the topic that user is asking about) and the other agent acts as a content writer, it takes the search results returned by the researcher agent and then writes an article along with citations.
 * All the code alnong with the requirements is in the ```app``` folder
-* To reduce size of the docker image, we have used multi-stage build ( refer [Docker File](./app/Dockerfile) here) 
+* Used multi-stage build To reduce size of the docker image ( refer [Docker File](./app/Dockerfile) here) 
 * To run the agent locally, refer [Local Set Up](./app/README.md)
 
 # pre-requisites for deploying using terraform
