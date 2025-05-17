@@ -16,3 +16,33 @@
 ![research-agent-arch (1)](https://github.com/user-attachments/assets/620b4ced-50d4-4acf-b731-0a3525a4c212)
 
 ### Terraform Code Explained
+
+#### provider.tf
+setting up the required providers (```azurerm (stands for Azure Resource Manager) and docker provider```)
+
+```terraform
+terraform {
+  required_version = ">=1.0"
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "4.1.0"
+    }
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.5.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+
+provider "docker" {
+  
+}
+```
+
+####
