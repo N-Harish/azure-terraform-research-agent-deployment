@@ -88,7 +88,7 @@
 ---
 * ```main.tf``` :- main terraform config file for creating all the resorces
   
-  - create resource group and setup an User Managed Assigned Identity (UMAI)
+  - create resource group and setup an User Assigned Managed Identity (UAMI)
     ```terraform
     resource "azurerm_resource_group" "research-agent-resource-group" {
        name = "research-agent-resource-group"
@@ -104,7 +104,7 @@
        ]
     }
     ```
-  - creating key vault and set access policy for getting secrets to the UMAI (we need to assign purge and delete permission to keyvault so that we can destroy the infra latter
+  - creating key vault and set access policy for getting secrets to the UAMI (we need to assign purge and delete permission to keyvault so that we can destroy the infra latter)
     ```terraform
     resource "azurerm_key_vault" "research-agent-key-vault" {
         name = "research-agent-key-vault"
@@ -140,7 +140,7 @@
         ]
     }
     ```
-  - creaate container registry, assign ArcPull permission to UMAI, use docker provider to build and push image to container registry
+  - creaate container registry, assign ArcPull permission to UAMI, use docker provider to build and push image to container registry
      ```terraform
      # create a container registry
      resource "azurerm_container_registry" "research-agent-container-registry" {
@@ -210,7 +210,7 @@
         ]
     }
     ```
-  - create container app and assign it the UMAI for accesing image from container registry and setting container secrets from key vault. Also enable external access as this is a web app
+  - create container app and assign it the UAMI for accesing image from container registry and setting container secrets from key vault. Also enable external access as this is a web app
     ```terraform
     # create a container app
     resource "azurerm_container_app" "research-agent-container-app" {
