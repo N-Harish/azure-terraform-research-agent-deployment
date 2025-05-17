@@ -22,3 +22,8 @@
       ```docker
       docker run --env-file .env -p 8051:8051 research-agent:latest 
       ```
+      
+## Testing the app
+* After following either of the steps in ```Running locally```, open ```http://localhost:8051``` to start using the app
+
+    ![image](https://github.com/user-attachments/assets/b50c6526-1898-4f4d-a747-3578a1cf503a)
