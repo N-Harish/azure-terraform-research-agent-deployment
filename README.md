@@ -246,7 +246,7 @@
         # add template to the container app
         template {
             min_replicas = 1
-            max_replicas = 1
+            max_replicas = 10
             
             container {
                 cpu = 0.5
