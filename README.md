@@ -24,11 +24,11 @@
   command
 * next, run
   ```
-  terraform plan -out main.plan
+  terraform plan -out main.tfplan
   ```
 * Finally, run
   ```
-  terraform apply main.plan
+  terraform apply main.tfplan
   ```
 * To destroy the complete infra, run
   ```
