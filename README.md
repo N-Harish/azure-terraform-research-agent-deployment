@@ -15,6 +15,10 @@
 ## Architecture Diagram:
 ![research-agent-arch (2)](https://github.com/user-attachments/assets/924a7fb3-aac7-46e1-9d3d-51cb6613f97d)
 
+## Resources created in Azure using terraform
+
+![resources](https://github.com/user-attachments/assets/b4501a77-65e7-4e38-b545-f0daccc9da84)
+
 
 ## To setup this infrastructure
 * cd into ```terraform_config/container_app```
